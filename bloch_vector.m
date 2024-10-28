@@ -15,10 +15,37 @@ sigmax = [0,1;1,0]; sigmay = [0,-1i;1i,0]; sigmaz = [1,0;0,-1];     % pauli matr
 % Sx = hbar/2*sigmax; Sy = hbar/2*sigmay; Sz = hbar/2*sigmaz;         % spin operators
 % S = [Sx;Sy;Sz];             % spin operator
 % sigma = 2/hbar.*S;
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+example = 2;
+%%%%%%%%%%%%%%%%%%%%%%%%%%
+switch example
+    case 1
+        Omega = 0;
+        A = 0.5;
+    case 2
+        Omega = wE_L;
+        A = 0.5;
+    case 3
+        Omega = 0.1*wE_L;
+        A = 0.5;
+    case 4
+        Omega = 100*wE_L;
+        A = 0.5;
+    case 5
+        Omega = wE_L;
+        A = 1;
+    case 6
+        Omega = wE_L;
+        A = 0;
+
+
+end
+
+
 
 psi0 = [1;0];           % initial state: Spin up along z
 
-Omega = 0.1*wE_L;           % generalized rabi frequency.
+% Omega = 0.1*wE_L;           % generalized rabi frequency.
 
 % setup of time evolution operator?
 N = 1000;       % total time steps?
@@ -32,7 +59,7 @@ t = (0:(N-1))*dt;
 
 
 % magnetic field vector direction 
-A = 0.5;
+% A = 0.5;
 ux = A.*cos(Omega.*t);
 uy = A.*sin(Omega.*t);
 uz = sqrt(1 - A.^2);
