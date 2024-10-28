@@ -18,7 +18,7 @@ sigmax = [0,1;1,0]; sigmay = [0,-1i;1i,0]; sigmaz = [1,0;0,-1];     % pauli matr
 
 psi0 = [1;0];           % initial state: Spin up along z
 
-Omega = 0.1*wE_L;           % generalized rabi frequency.
+Omega = wE_L;           % generalized rabi frequency.
 
 % setup of time evolution operator?
 N = 1000;       % total time steps?
@@ -116,19 +116,8 @@ end
 % title('Expectation value along $z$','Interpreter','latex');
 % set(gca,'FontSize',15);
 % xlim([0,t_end]);
-% Expectation values
+
 figure;
-subplot(2,2,1);
-plot(t, expect_ox, 'r-', t, expect_oy, 'g-', t, expect_oz, 'b-', 'LineWidth', 1.5);
-xlabel('Time $t$','Interpreter','latex');
-ylabel('Expectation Value');
-title('Pauli Matrix Expectation Values');
-legend('\langle\sigma_x\rangle', '\langle\sigma_y\rangle', '\langle\sigma_z\rangle');
-grid on;
-xlim([0,t_end]);
-
-
-
 subplot(2,2,2);
 plot(t,abs(PSI(1,:)).^2,'LineWidth',1.5); hold on;
 plot(t,abs(PSI(2,:)).^2,'LineWidth',1.5); hold off;
@@ -139,36 +128,36 @@ legend('|c_{+,z}|','|c_{-,z}|');
 set(gca,'FontSize',15);
 xlim([0,t_end]);
 
-
+figure;
 subplot(2,2,3);
-plot(t,psi_norm,'r','LineWidth',1.5); hold on;
-plot(t,bloch_norm,'b--','LineWidth',1.5); hold off;
+plot(t,psi_norm,'LineWidth',1.5); hold on;
+plot(t,bloch_norm,'LineWidth',1.5); hold off;
 xlabel('$t$','Interpreter','latex');
-ylabel('$|\langle\sigma\rangle|, | |\psi\rangle|$','Interpreter','latex');
+ylabel('$|\langle\vec{\sigma}\ri$','Interpreter','latex');
 title('Expansion coefficients','Interpreter','latex');
-legend('|\langle\sigma\rangle|','| |\psi\rangle|');
+legend('|c_{+,z}|','|c_{-,z}|');
 set(gca,'FontSize',15);
 xlim([0,t_end]);
-ylim([0.99 1.01]);
+
+
+% Expectation values
+subplot(2,2,1);
+plot(t, expect_ox, 'r-', t, expect_oy, 'g-', t, expect_oz, 'b-', 'LineWidth', 1.5);
+xlabel('Time (s)');
+ylabel('Expectation Value');
+title('Pauli Matrix Expectation Values');
+legend('\langle\sigma_x\rangle', '\langle\sigma_y\rangle', '\langle\sigma_z\rangle');
+grid on;
+xlim([0,t_end]);
 
 % 3D Bloch vector trajectory
 subplot(2,2,4);
-% Plot coordinate axes
-axis_length = 1.2;
-arrow_size = 0.1;
-
-% Plot arrows
-quiver3(0, 0, 0, axis_length, 0, 0, 0, 'Color',"#0075a7", 'LineWidth', 1.5, 'MaxHeadSize', arrow_size, 'DisplayName', 'x');
-hold on;
-quiver3(0, 0, 0, 0, axis_length, 0, 0, 'Color',"#0075a7", 'LineWidth', 1.5, 'MaxHeadSize', arrow_size, 'DisplayName', 'y');
-quiver3(0, 0, 0, 0, 0, axis_length, 0, 'Color',"#0075a7", 'LineWidth', 1.5, 'MaxHeadSize', arrow_size, 'DisplayName', 'z');
-
 plot3(expect_ox, expect_oy, expect_oz, 'k-', 'LineWidth', 1);
 hold on;
 plot3(expect_ox(1), expect_oy(1), expect_oz(1), 'go', 'MarkerSize', 10);
 plot3(expect_ox(end), expect_oy(end), expect_oz(end), 'ro', 'MarkerSize', 10);
 [X,Y,Z] = sphere(50);
-surf(X,Y,Z, 'FaceColor', [0.7 0.7 0.7], 'FaceAlpha', 0.1, 'EdgeColor', [0.7 0.7 0.7], 'EdgeAlpha', 0.2, 'DisplayName', 'Bloch Sphere');
+surf(X,Y,Z, 'FaceAlpha', 0.1, 'EdgeAlpha', 0.1);
 xlabel('\langle\sigma_x\rangle');
 ylabel('\langle\sigma_y\rangle');
 zlabel('\langle\sigma_z\rangle');
@@ -176,5 +165,3 @@ title('Bloch Vector Trajectory');
 axis equal;
 grid on;
 view(45,30);
-
-
