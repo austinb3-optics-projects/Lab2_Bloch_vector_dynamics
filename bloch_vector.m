@@ -9,7 +9,6 @@ yE =ge*uB/hbar; yP = gp*uN/hbar; yN = gn*uN/hbar;   % gyromagnetic ratios
 B0 = 1.4;           % magnetic field strength of a neodynium magnet [T]
 wE_L = -yE*B0; wP_L = -yP*B0; wN_L = -yN*B0;   % larmor frequency
 
-theta = 0; phi = 0;     % spherical coordinate system parameters
 % u = [sin(theta).*cos(phi); sin(theta)*sin(phi); cos(theta)];    % arbitrary spin direction vector
 sigmax = [0,1;1,0]; sigmay = [0,-1i;1i,0]; sigmaz = [1,0;0,-1];     % pauli matrices these are in the z basis
 % Sx = hbar/2*sigmax; Sy = hbar/2*sigmay; Sz = hbar/2*sigmaz;         % spin operators
@@ -17,6 +16,8 @@ sigmax = [0,1;1,0]; sigmay = [0,-1i;1i,0]; sigmaz = [1,0;0,-1];     % pauli matr
 % sigma = 2/hbar.*S;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 example = 2;
+init_state = 'z+';
+theta = 2*pi/3; phi = pi/4;     % spherical coordinate system parameters
 %%%%%%%%%%%%%%%%%%%%%%%%%%
 switch example
     case 1
@@ -41,11 +42,24 @@ switch example
 
 end
 
-
-
-psi0 = [1;0];           % initial state: Spin up along z
-
-% Omega = 0.1*wE_L;           % generalized rabi frequency.
+switch init_state
+    case 'z+'
+        psi0 = [1;0];
+    case 'z-'
+        psi0 = [0;1];
+    case 'x+'
+        psi0 = [1/sqrt(2);1/sqrt(2)];
+    case 'x-'
+        psi0 = [1/sqrt(2);-1/sqrt(2)];
+    case 'y+'
+        psi0 = [1/sqrt(2);1i/sqrt(2)];
+    case 'y-'
+        psi0 = [1/sqrt(2);-1i/sqrt(2)];
+    case 'u+'
+        psi0 = [cos(theta/2); sin(theta/2).*exp(1i*phi)];
+    case 'u-'
+        psi0 = [sin(theta/2); -cos(theta/2).*exp(1i*phi)];
+end
 
 % setup of time evolution operator?
 N = 1000;       % total time steps?
@@ -65,14 +79,10 @@ uy = A.*sin(Omega.*t);
 uz = sqrt(1 - A.^2);
 
 % setup for loop over time to determine U(t,t0), H(t), psi(t) based on u(t)
-% U = ones(2,2,length(t));  % time evolution operator
-% U_temp = ones(2,2,length(t));
 PSI = ones(length(psi0),length(t));
 expect_ox = zeros(1,length(t));
 expect_oy = zeros(1,length(t));
 expect_oz = zeros(1,length(t));
-% sigma = zeros(1,length(t));
-% psi = zeros(1,length(t));
 bloch_norm = zeros(1,N);
 psi_norm = zeros(1,N);
 E = hbar*wE_L./2;       % prefactor for Hamiltonian
@@ -94,31 +104,21 @@ for i = 2:length(t)
 % perform dot product 
     dotproduct = sigmax.*ux(i) + sigmay.*uy(i) + sigmaz.*uz;
     H = E.*dotproduct;
-% use prod() to perform product operation for U(t) at each time step
-% make sure to use expm for e^A where A is a matrix
+% store temporary time evolution step
     U_temp = expm(-1i/hbar*dt*H);
-    % U_temp(:,:,i) = expm(-1i./hbar.*dt.*H);
-% U_temp(:,:,i)
-    % U(:,:,i) = prod(U_temp,3);      % perform the product over the third dimension 
-                                % which ends up as elementwise multiplication
-                                % between the elements of the 2x2 matrices
-                                % stored in U_temp
+% calculate net time evolution operator
     U(:,:,i) = U_temp * U(:,:,i-1);
+% calculate wave vector for each time step
     PSI(:,i) = U(:,:,i)*psi0;
+% pauli spin vector expectation values
     expect_ox(i) = real(PSI(:,i)'*sigmax*PSI(:,i));
     expect_oy(i) = real(PSI(:,i)'*sigmay*PSI(:,i));
     expect_oz(i) = real(PSI(:,i)'*sigmaz*PSI(:,i));
-    
+% vector norm checks
     bloch_norm(i) = sqrt(expect_ox(i)^2 + expect_oy(i)^2 + expect_oz(i)^2);
     psi_norm(i) = sqrt(abs(PSI(:,i)'*PSI(:,i)));
 end
 
-% A = [1,2;3,4];
-% B = [2,3;4,5];
-% C(:,:,1) = A;
-% C(:,:,2) = B;
-% C
-% D = prod(C,3)
 
 %% Plotting
 
@@ -160,9 +160,9 @@ subplot(2,2,2);
 plot(t,abs(PSI(1,:)).^2,'LineWidth',1.5); hold on;
 plot(t,abs(PSI(2,:)).^2,'LineWidth',1.5); hold off;
 xlabel('$t$','Interpreter','latex');
-ylabel('$|c_{\pm,z}|^2$','Interpreter','latex');
+ylabel('$|c_{\pm}|^2$','Interpreter','latex');
 title('Expansion coefficients','Interpreter','latex');
-legend('|c_{+,z}|','|c_{-,z}|');
+legend('|c_{+}|','|c_{-}|');
 set(gca,'FontSize',15);
 xlim([0,t_end]);
 
